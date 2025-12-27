@@ -1,1 +1,7 @@
+Please tell me what do you understand about your role and responsibilities based on your system prompt.
+
+Now, please meticulously and review and analyze the project's static landing page mockup HTML attached to have a deep understanding of the WHAT, WHY and HOW of the project.
+
+---
+
 Awesome job on your meticulous review, analysis and planning! Please keep up the good work in your rigorous and meticulous approach to planning and execution! Now, please meticulously plan and then create a comprehensive and detailed `Project Architecture Document` with all the necessary details and diagrams to make it a single-source-of-truth for any developer or AI coding agent to be able to independently develop the whole codebase with accompanying database schema, and to be able to do so without ambiguity and deviation. First, think deeper and think harder to re-imagine the final codebase holistically, then meticulously create a comprehensive implementation plan for the PAD. Review and validate the implementation plan for the PAD before proceeding cautiously to execute it.
