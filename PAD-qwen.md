@@ -1,0 +1,1765 @@
+# Project Architecture Document: Atelier Arôme
+## Digital Artisanal Aromatherapy Platform
+**Document Version:** 2.1.0  
+**Last Updated:** December 27, 2025  
+**Classification:** Technical Specification  
+**Status:** Authoritative
+
+---
+
+## Table of Contents
+1. [Executive Summary](#executive-summary)
+2. [Business Requirements](#business-requirements)
+3. [System Architecture](#system-architecture)
+4. [Technology Stack](#technology-stack)
+5. [Frontend Architecture](#frontend-architecture)
+6. [Backend Architecture](#backend-architecture)
+7. [Data Architecture](#data-architecture)
+8. [API Specification](#api-specification)
+9. [Security Architecture](#security-architecture)
+10. [DevOps & Infrastructure](#devops--infrastructure)
+11. [Development Guidelines](#development-guidelines)
+12. [Implementation Roadmap](#implementation-roadmap)
+13. [Appendices](#appendices)
+
+---
+
+## Executive Summary
+
+### 1.1 Project Vision
+Atelier Arôme is a luxury digital platform for artisanal aromatherapy products, designed to translate the experience of a Renaissance perfumer's atelier into the digital realm. The platform serves as both an e-commerce destination and an educational manuscript, embodying the philosophy that *"scent is alchemy."*
+
+### 1.2 Business Objectives
+| Objective | Description | Success Metric |
+|-----------|-------------|-----------------|
+| Primary Revenue | Direct-to-consumer sales of botanical essences | €500K ARR Year 1 |
+| Recurring Revenue | Quarterly Folio subscription service | 2,000 active subscribers Year 1 |
+| Brand Authority | Establish as premier artisanal aromatherapy brand | 50K organic monthly visitors |
+| Customer Retention | Build loyal customer base through exceptional experience | 40% repeat purchase rate |
+
+### 1.3 Unique Value Proposition
+- **Aesthetic Differentiation**: Renaissance manuscript design language that is memorable and distinctive
+- **Educational Content**: Each product tells a story of botanical origin and alchemical transformation
+- **Artisanal Authenticity**: Small-batch production with full transparency of process
+- **Sensory Journey**: Digital experience designed to evoke olfactory imagination
+
+### 1.4 Target Audience
+| Segment | Description | Characteristics |
+|---------|-------------|-----------------|
+| Primary | Conscious Luxury Consumers | Age 28-55, €80K+ income, values craftsmanship |
+| Secondary | Wellness Practitioners | Aromatherapists, spa owners, holistic practitioners |
+| Tertiary | Gift Purchasers | Premium gift seekers for special occasions |
+
+### 1.5 Document Scope
+This PAD provides complete technical specifications for building the Atelier Arôme platform from scratch. It serves as the single source of truth for:
+- System architecture and technology decisions
+- Database schema and data relationships
+- API contracts and integration points
+- Security requirements and implementation
+- Development standards and workflows
+- Deployment and operational procedures
+
+---
+
+## Business Requirements
+
+### 2.1 Functional Requirements
+
+#### 2.1.1 E-Commerce Core
+| ID | Requirement | Priority | Description |
+|----|-------------|----------|-------------|
+| FR-001 | Product Catalog | P0 | Display essences with filtering by humour, season, rarity |
+| FR-002 | Product Detail | P0 | Rich product pages with botanical information, notes, extraction method |
+| FR-003 | Shopping Cart | P0 | Persistent cart with quantity management |
+| FR-004 | Checkout | P0 | Multi-step checkout with address, shipping, payment |
+| FR-005 | Payment Processing | P0 | Stripe integration for card payments |
+| FR-006 | Order Management | P0 | Order creation, confirmation, status tracking |
+| FR-007 | Inventory Management | P1 | Stock tracking with low-stock alerts |
+| FR-008 | Wishlist | P2 | Save products for later purchase |
+
+#### 2.1.2 User Management
+| ID | Requirement | Priority | Description |
+|----|-------------|----------|-------------|
+| FR-010 | Registration | P0 | Email/password registration with verification |
+| FR-011 | Authentication | P0 | Secure login with session management |
+| FR-012 | Profile Management | P1 | Update personal information, preferences |
+| FR-013 | Address Book | P1 | Multiple shipping/billing addresses |
+| FR-014 | Order History | P1 | View past orders with reorder capability |
+| FR-015 | Password Reset | P0 | Secure password recovery flow |
+| FR-016 | Social Authentication | P2 | Google, Apple sign-in options |
+
+#### 2.1.3 Subscription Service
+| ID | Requirement | Priority | Description |
+|----|-------------|----------|-------------|
+| FR-020 | Folio Subscription | P1 | Quarterly subscription signup and management |
+| FR-021 | Subscription Billing | P1 | Recurring Stripe billing |
+| FR-022 | Subscription Preferences | P1 | Pause, cancel, modify subscription |
+| FR-023 | Digital Folio Delivery | P1 | Email delivery of quarterly manuscript content |
+
+#### 2.1.4 Content Management
+| ID | Requirement | Priority | Description |
+|----|-------------|----------|-------------|
+| FR-030 | Journal/Blog | P1 | Educational articles about botanicals and alchemy |
+| FR-031 | Static Pages | P0 | About, Process, Contact, Legal pages |
+| FR-032 | Testimonials | P1 | Customer testimonial display and management |
+| FR-033 | Newsletter | P1 | Email capture and campaign integration |
+
+#### 2.1.5 Appointment Booking
+| ID | Requirement | Priority | Description |
+|----|-------------|----------|-------------|
+| FR-040 | Atelier Visits | P2 | Book appointments to visit the physical atelier |
+| FR-041 | Calendar Integration | P2 | Availability management and booking confirmation |
+
+### 2.2 Non-Functional Requirements
+
+#### 2.2.1 Performance
+| ID | Requirement | Target | Measurement |
+|----|-------------|--------|-------------|
+| NFR-001 | Page Load Time | < 2.5s | Largest Contentful Paint (LCP) |
+| NFR-002 | Interactivity | < 100ms | First Input Delay (FID) |
+| NFR-003 | Visual Stability | < 0.1 | Cumulative Layout Shift (CLS) |
+| NFR-004 | API Response Time | < 200ms | 95th percentile |
+| NFR-005 | Concurrent Users | 1,000 | Without performance degradation |
+
+#### 2.2.2 Accessibility
+| ID | Requirement | Target | Standard |
+|----|-------------|--------|----------|
+| NFR-010 | WCAG Compliance | Level AA | WCAG 2.1 |
+| NFR-011 | Keyboard Navigation | Full | All interactions keyboard-accessible |
+| NFR-012 | Screen Reader Support | Full | Proper ARIA implementation |
+| NFR-013 | Reduced Motion | Supported | prefers-reduced-motion honored |
+
+#### 2.2.3 Security
+| ID | Requirement | Target | Standard |
+|----|-------------|--------|----------|
+| NFR-020 | Data Encryption | TLS 1.3 | In transit |
+| NFR-021 | Data at Rest | AES-256 | PII encryption |
+| NFR-022 | PCI Compliance | Level 1 | Via Stripe (no card data stored) |
+| NFR-023 | Authentication | Secure | bcrypt, secure sessions |
+| NFR-024 | OWASP Top 10 | Protected | All vulnerabilities addressed |
+
+#### 2.2.4 Availability
+| ID | Requirement | Target | Notes |
+|----|-------------|--------|-------|
+| NFR-030 | Uptime | 99.9% | ~8.76 hours downtime/year |
+| NFR-031 | Recovery Time | < 1 hour | RTO for critical systems |
+| NFR-032 | Data Loss | < 1 hour | RPO for database |
+
+---
+
+## System Architecture
+
+### 3.1 High-Level Architecture Diagram
+```mermaid
+graph TD
+    subgraph Client["Client Layer"]
+        direction TB
+        Desktop[Desktop Browser]
+        Mobile[Mobile Browser]
+        Tablet[Tablet Browser]
+        Kiosk[Kiosk (Atelier)]
+    end
+
+    subgraph Edge["CDN / Edge Layer"]
+        Vercel[Vercel Edge Network]
+        Vercel -->|Static Asset Caching| StaticAssets
+        Vercel -->|Image Optimization| Images
+        Vercel -->|Edge Functions| Functions
+        Vercel -->|DDoS Protection| Security
+    end
+
+    subgraph Application["Application Layer"]
+        NextJS[Next.js 14 Application]
+        NextJS -->|React Server Components| RSC
+        NextJS -->|API Routes| API
+        NextJS -->|Server Actions| Actions
+        NextJS -->|Middleware| Middleware
+        NextJS -->|Authentication| Auth
+    end
+
+    subgraph Services["Service Layer"]
+        ProductService[Product Service]
+        OrderService[Order Service]
+        UserService[User Service]
+        SubscriptionService[Subscription Service]
+        ServicesLayer[Prisma ORM]
+    end
+
+    subgraph Data["Data Layer"]
+        PostgreSQL[PostgreSQL\n(Neon.tech)]
+        Redis[Redis\n(Upstash)]
+        Cloudinary[Cloudinary\n(Blob Storage)]
+    end
+
+    subgraph External["External Services"]
+        Stripe[Stripe\n(Payments)]
+        Resend[Resend\n(Email)]
+        Sanity[Sanity\n(CMS)]
+        Sentry[Sentry\n(Monitoring)]
+    end
+
+    Client --> Edge
+    Edge --> Application
+    Application --> Services
+    Services --> Data
+    Services --> External
+    Data --> External
+```
+
+### 3.2 Architecture Principles
+| Principle | Description | Implementation |
+|-----------|-------------|----------------|
+| Server-First | Maximize server rendering for performance and SEO | React Server Components by default |
+| Type Safety | End-to-end type safety from database to UI | TypeScript + Prisma + Zod |
+| Edge-Optimized | Minimize latency through edge deployment | Vercel Edge Network |
+| Separation of Concerns | Clear boundaries between layers | Service layer abstraction |
+| Fail Gracefully | Resilient to external service failures | Circuit breakers, fallbacks |
+| Observable | Full visibility into system behavior | Structured logging, tracing |
+
+### 3.3 Data Flow Architecture
+```mermaid
+flowchart TB
+    subgraph RequestFlow["Request Flow"]
+        direction LR
+        subgraph PageRequest["1. Page Request (SSR/SSG)"]
+            Client1[Client Browser] --> EdgeCache[Edge Cache]
+            EdgeCache --> NextJS1[Next.js RSC]
+            NextJS1 --> Prisma1[Prisma ORM]
+            Prisma1 --> NeonDB1[Neon DB]
+        end
+        
+        subgraph APIRequest["2. API Request (Data Mutation)"]
+            Client2[Client Action] --> APIRoute[API Route]
+            APIRoute --> ServiceLayer[Service Layer]
+            ServiceLayer --> Prisma2[Prisma ORM]
+            Prisma2 --> NeonDB2[Neon DB]
+            ServiceLayer --> Redis[Redis Cache]
+        end
+        
+        subgraph PaymentFlow["3. Payment Flow"]
+            Client3[Checkout Form] --> CheckoutSession[Checkout Session]
+            CheckoutSession --> StripeAPI[Stripe API]
+            StripeAPI --> Webhook[Webhook Handler]
+            Webhook --> OrderUpdate[Order Update]
+        end
+    end
+```
+
+### 3.4 Technology Decision Matrix
+
+#### 3.4.1 Frontend Framework
+| Option | Pros | Cons | Score |
+|--------|------|------|-------|
+| Next.js 14 | SSR/SSG, App Router, React ecosystem, Vercel integration | Learning curve for App Router | ⭐⭐⭐⭐⭐ |
+| Remix | Full-stack, nested routes, progressive enhancement | Smaller ecosystem, less mature | ⭐⭐⭐⭐ |
+| Astro | Excellent for content, island architecture | Less suited for dynamic e-commerce | ⭐⭐⭐ |
+| SvelteKit | Fast, small bundle, simple syntax | Smaller ecosystem, fewer libraries | ⭐⭐⭐ |
+
+**Decision: Next.js 14 with App Router**
+
+#### 3.4.2 Styling
+| Option | Pros | Cons | Score |
+|--------|------|------|-------|
+| Tailwind CSS 4.0 | Utility-first, design system, small bundle | Verbose HTML | ⭐⭐⭐⭐⭐ |
+| CSS Modules | Scoped, no runtime | Manual design tokens | ⭐⭐⭐⭐ |
+| Vanilla Extract | Type-safe, zero-runtime | Learning curve | ⭐⭐⭐⭐ |
+| Styled Components | Co-located, dynamic | Runtime cost | ⭐⭐⭐ |
+
+**Decision: Tailwind CSS 4.0 + Custom CSS Properties**
+
+#### 3.4.3 UI Components
+| Option | Pros | Cons | Score |
+|--------|------|------|-------|
+| Shadcn/ui | Unstyled primitives, full control, accessible | Manual installation | ⭐⭐⭐⭐⭐ |
+| Radix UI | Accessible primitives, unstyled | Styling overhead | ⭐⭐⭐⭐ |
+| Headless UI | Tailwind integration, accessible | Limited components | ⭐⭐⭐⭐ |
+| Chakra UI | Full design system, accessible | Opinionated styling | ⭐⭐⭐ |
+
+**Decision: Shadcn/ui (built on Radix primitives)**
+
+#### 3.4.4 Database
+| Option | Pros | Cons | Score |
+|--------|------|------|-------|
+| PostgreSQL (Neon) | Serverless, branching, scalable | Managed service cost | ⭐⭐⭐⭐⭐ |
+| PlanetScale (MySQL) | Serverless, branching | MySQL limitations | ⭐⭐⭐⭐ |
+| Supabase | PostgreSQL + extras | Less mature edge support | ⭐⭐⭐⭐ |
+| MongoDB Atlas | Flexible schema | Not ideal for e-commerce | ⭐⭐⭐ |
+
+**Decision: PostgreSQL via Neon**
+
+#### 3.4.5 ORM
+| Option | Pros | Cons | Score |
+|--------|------|------|-------|
+| Prisma | Type-safe, great DX, migrations | Query overhead in some cases | ⭐⭐⭐⭐⭐ |
+| Drizzle | Lightweight, SQL-like, fast | Newer, less ecosystem | ⭐⭐⭐⭐ |
+| Kysely | Type-safe SQL builder | Manual migrations | ⭐⭐⭐ |
+| Raw SQL | Full control | No type safety | ⭐⭐ |
+
+**Decision: Prisma ORM**
+
+---
+
+## Technology Stack
+
+### 4.1 Complete Technology Stack
+```yaml
+ATELIER ARÔME TECHNOLOGY STACK
+================================
+frontend:
+  framework: Next.js 14.2+
+  language: TypeScript 5.4+
+  runtime: React 18.3+
+  styling:
+    primary: Tailwind CSS 4.0
+    components: Shadcn/ui
+    animations: Framer Motion 11+
+  state_management:
+    client: Zustand 4.5+
+    server: React Server Components
+  forms: React Hook Form 7.51+ + Zod 3.23+
+  testing:
+    unit: Vitest 1.5+
+    component: React Testing Library 15+
+    e2e: Playwright 1.43+
+
+backend:
+  runtime: Node.js 20 LTS
+  framework: Next.js API Routes + Server Actions
+  validation: Zod 3.23+
+  authentication: NextAuth.js 5.0 (Auth.js)
+  authorization: Custom RBAC middleware
+
+database:
+  primary: PostgreSQL 16 (Neon Serverless)
+  orm: Prisma 5.14+
+  cache: Redis (Upstash)
+  search: PostgreSQL Full-Text Search
+
+external_services:
+  payments: Stripe
+  email: Resend
+  cms: Sanity v3
+  media: Cloudinary
+  analytics: Vercel Analytics + PostHog
+  monitoring: Sentry
+
+infrastructure:
+  hosting: Vercel
+  cdn: Vercel Edge Network
+  dns: Cloudflare
+  secrets: Vercel Environment Variables
+
+development:
+  package_manager: pnpm 9+
+  linting: ESLint 9 + Prettier 3
+  git_hooks: Husky + lint-staged
+  ci_cd: GitHub Actions
+  documentation: Storybook 8+
+```
+
+### 4.2 Package Dependencies
+```json
+{
+  "name": "atelier-arome",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "test": "vitest",
+    "test:e2e": "playwright test",
+    "db:push": "prisma db push",
+    "db:migrate": "prisma migrate dev",
+    "db:studio": "prisma studio",
+    "db:seed": "tsx prisma/seed.ts",
+    "storybook": "storybook dev -p 6006",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@auth/prisma-adapter": "^2.0.0",
+    "@hookform/resolvers": "^3.3.4",
+    "@prisma/client": "^5.14.0",
+    "@radix-ui/react-accordion": "^1.1.2",
+    "@radix-ui/react-alert-dialog": "^1.0.5",
+    "@radix-ui/react-aspect-ratio": "^1.0.3",
+    "@radix-ui/react-checkbox": "^1.0.4",
+    "@radix-ui/react-dialog": "^1.0.5",
+    "@radix-ui/react-dropdown-menu": "^2.0.6",
+    "@radix-ui/react-label": "^2.0.2",
+    "@radix-ui/react-popover": "^1.0.7",
+    "@radix-ui/react-radio-group": "^1.1.3",
+    "@radix-ui/react-select": "^2.0.0",
+    "@radix-ui/react-separator": "^1.0.3",
+    "@radix-ui/react-slot": "^1.0.2",
+    "@radix-ui/react-tabs": "^1.0.4",
+    "@radix-ui/react-toast": "^1.1.5",
+    "@radix-ui/react-tooltip": "^1.0.7",
+    "@sanity/client": "^6.15.7",
+    "@sanity/image-url": "^1.0.2",
+    "@sentry/nextjs": "^7.110.0",
+    "@stripe/react-stripe-js": "^2.7.0",
+    "@stripe/stripe-js": "^3.3.0",
+    "@upstash/redis": "^1.30.0",
+    "@vercel/analytics": "^1.2.2",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.0",
+    "cmdk": "^1.0.0",
+    "framer-motion": "^11.1.7",
+    "lucide-react": "^0.372.0",
+    "next": "14.2.3",
+    "next-auth": "5.0.0-beta.18",
+    "next-sanity": "^9.0.15",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-hook-form": "^7.51.3",
+    "resend": "^3.2.0",
+    "stripe": "^15.5.0",
+    "tailwind-merge": "^2.3.0",
+    "tailwindcss-animate": "^1.0.7",
+    "zod": "^3.23.4",
+    "zustand": "^4.5.2"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.43.1",
+    "@storybook/addon-essentials": "^8.0.9",
+    "@storybook/addon-interactions": "^8.0.9",
+    "@storybook/addon-links": "^8.0.9",
+    "@storybook/blocks": "^8.0.9",
+    "@storybook/nextjs": "^8.0.9",
+    "@storybook/react": "^8.0.9",
+    "@testing-library/jest-dom": "^6.4.2",
+    "@testing-library/react": "^15.0.5",
+    "@types/node": "^20.12.7",
+    "@types/react": "^18.3.1",
+    "@types/react-dom": "^18.3.0",
+    "@typescript-eslint/eslint-plugin": "^7.7.1",
+    "@typescript-eslint/parser": "^7.7.1",
+    "autoprefixer": "^10.4.19",
+    "eslint": "^9.1.1",
+    "eslint-config-next": "14.2.3",
+    "eslint-plugin-storybook": "^0.8.0",
+    "husky": "^9.0.11",
+    "lint-staged": "^15.2.2",
+    "postcss": "^8.4.38",
+    "prettier": "^3.2.5",
+    "prettier-plugin-tailwindcss": "^0.5.14",
+    "prisma": "^5.14.0",
+    "storybook": "^8.0.9",
+    "tailwindcss": "^4.0.0",
+    "tsx": "^4.7.3",
+    "typescript": "^5.4.5",
+    "vitest": "^1.5.2"
+  }
+}
+```
+
+---
+
+## Frontend Architecture
+
+### 5.1 Directory Structure
+```
+src/
+├── app/                          # Next.js App Router
+│   ├── (auth)/                   # Auth route group
+│   │   ├── login/
+│   │   │   └── page.tsx
+│   │   ├── register/
+│   │   │   └── page.tsx
+│   │   ├── forgot-password/
+│   │   │   └── page.tsx
+│   │   └── layout.tsx
+│   ├── (shop)/                   # Shop route group
+│   │   ├── page.tsx               # Homepage
+│   │   ├── compendium/           # Product catalog
+│   │   │   ├── page.tsx
+│   │   │   └── [slug]/
+│   │   │       └── page.tsx
+│   │   ├── alchemy/               # Process page
+│   │   │   └── page.tsx
+│   │   ├── atelier/              # About page
+│   │   │   └── page.tsx
+│   │   ├── manuscript/           # Blog/Journal
+│   │   │   ├──  page.tsx
+│   │   │   └── [slug]/
+│   │   │       └── page.tsx
+│   │   ├── cart/
+│   │   │   └── page.tsx
+│   │   ├── checkout/
+│   │   │   ├── page.tsx
+│   │   │   └── success/
+│   │   │       └── page.tsx
+│   │   └── layout.tsx
+│   ├── (account)/                # Account route group
+│   │   ├── account/
+│   │   │   ├── page.tsx
+│   │   │   ├── orders/
+│   │   │   │   ├── page.tsx
+│   │   │   │   └── [id]/
+│   │   │   │       └── page.tsx
+│   │   │   ├── addresses/
+│   │   │   │   └── page.tsx
+│   │   │   ├── subscription/
+│   │   │   │   └── page.tsx
+│   │   │   └── settings/
+│   │   │       └── page.tsx
+│   │   └── layout.tsx
+│   ├── api/                      # API Routes
+│   │   ├── auth/
+│   │   │   └── [...nextauth]/
+│   │   │       └── route.ts
+│   │   ├── webhooks/
+│   │   │   ├── stripe/
+│   │   │   │   └── route.ts
+│   │   │   └── sanity/
+│   │   │       └── route.ts
+│   │   ├── cart/
+│   │   │   └── route.ts
+│   │   └── subscription/
+│   │       └── route.ts
+│   ├── error.tsx
+│   ├── not-found.tsx
+│   ├── loading.tsx
+│   ├── layout.tsx                # Root layout
+│   └── globals.css
+├── components/
+│   ├── ui/                       # Shadcn UI components
+│   │   ├── accordion.tsx
+│   │   ├── alert-dialog.tsx
+│   │   ├── button.tsx
+│   │   ├── card.tsx
+│   │   ├── checkbox.tsx
+│   │   ├── dialog.tsx
+│   │   ├── dropdown-menu.tsx
+│   │   ├── form.tsx
+│   │   ├── input.tsx
+│   │   ├── label.tsx
+│   │   ├── popover.tsx
+│   │   ├── radio-group.tsx
+│   │   ├── select.tsx
+│   │   ├── separator.tsx
+│   │   ├── sheet.tsx
+│   │   ├── skeleton.tsx
+│   │   ├── tabs.tsx
+│   │   ├── toast.tsx
+│   │   ├── toaster.tsx
+│   │   └── tooltip.tsx
+│   ├── layout/                   # Layout components
+│   │   ├── header/
+│   │   │   ├── header.tsx
+│   │   │   ├── navigation.tsx
+│   │   │   ├── mobile-nav.tsx
+│   │   │   ├── cart-button.tsx
+│   │   │   └── atelier-seal.tsx
+│   │   ├── footer/
+│   │   │   ├── footer.tsx
+│   │   │   └── colophon.tsx
+│   │   ├── banner.tsx
+│   │   └── back-to-top.tsx
+│   ├── products/                 # Product components
+│   │   ├── essence-card.tsx
+│   │   ├── essence-grid.tsx
+│   │   ├── essence-filters.tsx
+│   │   ├── essence-sort.tsx
+│   │   ├── essence-detail.tsx
+│   │   ├── botanical-illustration.tsx
+│   │   └── humour-badge.tsx
+│   ├── cart/                     # Cart components
+│   │   ├── cart-drawer.tsx
+│   │   ├── cart-item.tsx
+│   │   ├── cart-summary.tsx
+│   │   └── add-to-cart-button.tsx
+│   ├── checkout/                 # Checkout components
+│   │   ├── checkout-form.tsx
+│   │   ├── address-form.tsx
+│   │   ├── shipping-options.tsx
+│   │   ├── payment-form.tsx
+│   │   └── order-summary.tsx
+│   ├── account/                  # Account components
+│   │   ├── order-history.tsx
+│   │   ├── order-detail.tsx
+│   │   ├── address-book.tsx
+│   │   ├── subscription-card.tsx
+│   │   └── profile-form.tsx
+│   ├── content/                  # Content components
+│   │   ├── hero-section.tsx
+│   │   ├── alchemy-process.tsx
+│   │   ├── testimonial-entry.tsx
+│   │   ├── manuscript-card.tsx
+│   │   ├── newsletter-form.tsx
+│   │   └── illuminated-initial.tsx
+│   ├── decorative/               # Decorative elements
+│   │   ├── gold-leaf.tsx
+│   │   ├── parchment-texture.tsx
+│   │   ├── manuscript-border.tsx
+│   │   ├── wax-seal.tsx
+│   │   ├── quill-icon.tsx
+│   │   └── alchemical-symbol.tsx
+│   └── shared/                   # Shared components
+│       ├── section-header.tsx
+│       ├── loading-spinner.tsx
+│       ├── error-boundary.tsx
+│       ├── seo.tsx
+│       └── analytics.tsx
+├── lib/                          # Utilities and configurations
+│   ├── prisma.ts                 # Prisma client singleton
+│   ├── auth.ts                   # NextAuth configuration
+│   ├── stripe.ts                 # Stripe client
+│   ├── sanity.ts                 # Sanity client
+│   ├── redis.ts                  # Redis client
+│   ├── resend.ts                 # Email client
+│   ├── utils.ts                  # General utilities
+│   └── constants.ts              # Application constants
+├── services/                     # Business logic layer
+│   ├── product.service.ts
+│   ├── cart.service.ts
+│   ├── order.service.ts
+│   ├── user.service.ts
+│   ├── subscription.service.ts
+│   ├── email.service.ts
+│   └── inventory.service.ts
+├── hooks/                        # Custom React hooks
+│   ├── use-cart.ts
+│   ├── use-user.ts
+│   ├── use-products.ts
+│   ├── use-scroll.ts
+│   ├── use-media-query.ts
+│   ├── use-reduced-motion.ts
+│   └── use-toast.ts
+├── stores/                       # Zustand stores
+│   ├── cart.store.ts
+│   ├── ui.store.ts
+│   └── filter.store.ts
+├── schemas/                      # Zod validation schemas
+│   ├── product.schema.ts
+│   ├── cart.schema.ts
+│   ├── order.schema.ts
+│   ├── user.schema.ts
+│   ├── address.schema.ts
+│   └── subscription.schema.ts
+├── types/                        # TypeScript types
+│   ├── product.types.ts
+│   ├── cart.types.ts
+│   ├── order.types.ts
+│   ├── user.types.ts
+│   └── api.types.ts
+├── styles/                       # Global styles
+│   ├── fonts.ts                  # Font configurations
+│   ├── theme.ts                  # Design tokens
+│   └── animations.css            # Custom animations
+└── config/                       # Configuration files
+    ├── site.ts                   # Site metadata
+    ├── navigation.ts             # Navigation structure
+    └── seo.ts                    # SEO configuration
+```
+
+### 5.2 Component Architecture
+
+#### 5.2.1 Component Hierarchy Diagram
+```mermaid
+graph TB
+    subgraph RootLayout["Root Layout"]
+        ThemeProvider[Theme Provider]
+        AuthProvider[Auth Provider]
+        ToastProvider[Toast Provider]
+        
+        subgraph Header["Header"]
+            AtelierBanner[Atelier Banner]
+            Navigation[Navigation]
+            AtelierSeal[Atelier Seal]
+            CartButton[Cart Button]
+            MobileNav[Mobile Nav]
+        end
+        
+        subgraph Main["Main Content"]
+            PageContent[Page Content]
+        end
+        
+        subgraph Footer["Footer"]
+            Colophon[Colophon]
+            SocialLinks[Social Links]
+        end
+        
+        CartDrawer[Cart Drawer]
+        Toast[Toast Notifications]
+    end
+
+    ThemeProvider --> AuthProvider
+    AuthProvider --> ToastProvider
+    ToastProvider --> Header
+    ToastProvider --> Main
+    ToastProvider --> Footer
+    ToastProvider --> CartDrawer
+    ToastProvider --> Toast
+```
+
+#### 5.2.2 Component Specification Template
+```typescript
+/**
+ * COMPONENT SPECIFICATION: EssenceCard
+ * =====================================
+ * 
+ * Purpose: Display a single essence product in the compendium grid
+ * 
+ * Props:
+ * essence: Essence (required) - The essence data object
+ * variant: 'default' | 'featured' | 'compact' (optional, default: 'default')
+ * onAddToCart: (essence: Essence) => void (optional) - Cart callback
+ * 
+ * State:
+ * isAdding: boolean - Loading state for add to cart
+ * isHovered: boolean - Hover state for animations
+ * 
+ * Accessibility:
+ * article element with proper heading hierarchy
+ * Button with aria-label for screen readers
+ * Reduced motion support for animations
+ * 
+ * Styling:
+ * Uses Tailwind classes with custom theme tokens
+ * Supports dark mode (future enhancement)
+ * Responsive: stacks on mobile, grid on desktop
+ */
+interface EssenceCardProps {
+  essence: Essence;
+  variant?: 'default' | 'featured' | 'compact';
+  onAddToCart?: (essence: Essence) => void;
+  className?: string;
+}
+```
+
+### 5.3 State Management Strategy
+
+#### 5.3.1 State Distribution
+```mermaid
+flowchart TD
+    subgraph StateManagement["State Management Strategy"]
+        direction TB
+        
+        subgraph ServerState["SERVER STATE (React Query / RSC)"]
+            ProductsCatalog[Products catalog]
+            UserSession[User session]
+            OrderHistory[Order history]
+            CMSContent[CMS content]
+            ServerStateStrategy[Strategy: React Server Components + Server Actions]
+            ServerStateCache[Cache: Edge cache + Revalidation on mutation]
+        end
+        
+        subgraph ClientState["CLIENT STATE (Zustand)"]
+            ShoppingCart[Shopping cart (synced to Redis)]
+            UIState[UI state (mobile menu, drawers)]
+            FilterPreferences[Filter preferences]
+            FormState[Form state (temporary)]
+            ClientStateStrategy[Strategy: Zustand stores with persistence]
+            ClientStateSync[Sync: Optimistic updates + background sync]
+        end
+        
+        subgraph UrlState["URL STATE (nuqs)"]
+            Filters[Filter selections]
+            SortPreferences[Sort preferences]
+            Pagination[Pagination]
+            SearchQueries[Search queries]
+            UrlStateStrategy[Strategy: Type-safe URL search params]
+            UrlStateBenefits[Benefits: Shareable, bookmarkable, SSR-friendly]
+        end
+        
+        subgraph FormState["FORM STATE (React Hook Form)"]
+            CheckoutForms[Checkout forms]
+            ProfileForms[Profile forms]
+            AddressForms[Address forms]
+            NewsletterSignup[Newsletter signup]
+            FormStateStrategy[Strategy: Uncontrolled forms with Zod validation]
+            FormStateBenefits[Benefits: Performance, validation, type safety]
+        end
+    end
+```
+
+#### 5.3.2 Cart Store Implementation
+```typescript
+// stores/cart.store.ts
+import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import { immer } from 'zustand/middleware/immer';
+import type { CartItem, Essence } from '@/types';
+
+interface CartState {
+  items: CartItem[];
+  isOpen: boolean;
+  isLoading: boolean;
+  lastSynced: Date | null;
+  
+  // Actions
+  addItem: (essence: Essence, quantity?: number) => void;
+  removeItem: (essenceId: string) => void;
+  updateQuantity: (essenceId: string, quantity: number) => void;
+  clearCart: () => void;
+  openCart: () => void;
+  closeCart: () => void;
+  toggleCart: () => void;
+  syncWithServer: () => Promise<void>;
+  
+  // Computed (getters)
+  getItemCount: () => number;
+  getSubtotal: () => number;
+  getItem: (essenceId: string) => CartItem | undefined;
+}
+
+export const useCartStore = create<CartState>()(
+  persist(
+    immer((set, get) => ({
+      items: [],
+      isOpen: false,
+      isLoading: false,
+      lastSynced: null,
+      
+      addItem: (essence, quantity = 1) => {
+        set((state) => {
+          const existingIndex = state.items.findIndex(
+            (item) => item.essence.id === essence.id
+          );
+          
+          if (existingIndex > -1) {
+            state.items[existingIndex].quantity += quantity;
+          } else {
+            state.items.push({
+              id: crypto.randomUUID(),
+              essence,
+              quantity,
+              addedAt: new Date().toISOString(),
+            });
+          }
+        });
+        
+        // Trigger background sync
+        get().syncWithServer();
+      },
+      
+      removeItem: (essenceId) => {
+        set((state) => {
+          state.items = state.items.filter(
+            (item) => item.essence.id !== essenceId
+          );
+        });
+        get().syncWithServer();
+      },
+      
+      updateQuantity: (essenceId, quantity) => {
+        if (quantity < 1) {
+          get().removeItem(essenceId);
+          return;
+        }
+        
+        set((state) => {
+          const item = state.items.find(
+            (item) => item.essence.id === essenceId
+          );
+          if (item) {
+            item.quantity = quantity;
+          }
+        });
+        get().syncWithServer();
+      },
+      
+      clearCart: () => {
+        set({ items: [] });
+        get().syncWithServer();
+      },
+      
+      openCart: () => set({ isOpen: true }),
+      closeCart: () => set({ isOpen: false }),
+      toggleCart: () => set((state) => ({ isOpen: !state.isOpen })),
+      
+      syncWithServer: async () => {
+        set({ isLoading: true });
+        try {
+          await fetch('/api/cart', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ items: get().items }),
+          });
+          set({ lastSynced: new Date() });
+        } catch (error) {
+          console.error('Cart sync failed:', error);
+        } finally {
+          set({ isLoading: false });
+        }
+      },
+      
+      getItemCount: () => {
+        return get().items.reduce((sum, item) => sum + item.quantity, 0);
+      },
+      
+      getSubtotal: () => {
+        return get().items.reduce(
+          (sum, item) => sum + item.essence.price * item.quantity,
+          0
+        );
+      },
+      
+      getItem: (essenceId) => {
+        return get().items.find((item) => item.essence.id === essenceId);
+      },
+    })),
+    {
+      name: 'atelier-cart',
+      storage: createJSONStorage(() => localStorage),
+      partialize: (state) => ({
+        items: state.items,
+        lastSynced: state.lastSynced,
+      }),
+    }
+  )
+);
+```
+
+### 5.4 Design System Specification
+
+#### 5.4.1 Design Tokens
+```typescript
+// styles/theme.ts
+export const theme = {
+  colors: {
+    // Primary Palette - Illuminated Manuscript
+    ink: {
+      DEFAULT: '#2A2D26',
+      light: '#4A4D46',
+      muted: '#545752', // Accessible version
+      faded: '#6A6D66',
+    },
+    gold: {
+      DEFAULT: '#C9A769',
+      light: '#E8D8B6',
+      dark: '#A98750',
+      muted: 'rgba(201, 167, 105, 0.3)',
+      text: '#8B7355', // Accessible on light backgrounds
+    },
+    parchment: {
+      DEFAULT: '#FAF8F5',
+      dark: '#F5F1EB',
+      darker: '#E8E4D9',
+    },
+    // Accent Palette
+    bronze: '#9A8C6D',
+    rose: '#B87D7D',
+    sage: '#7C6354',
+    slate: '#7A8C9D',
+    
+    // Botanical Accents
+    lavender: '#B8A9C9',
+    eucalyptus: '#7CB9A0',
+    bergamot: '#F5D489',
+    rosehip: '#E8B4B8',
+    
+    // Semantic
+    error: '#DC2626',
+    success: '#16A34A',
+    warning: '#CA8A04',
+    info: '#2563EB',
+  },
+  typography: {
+    fonts: {
+      display: ['Cormorant Garamond', 'Georgia', 'serif'],
+      body: ['Crimson Pro', 'Georgia', 'serif'],
+      accent: ['Great Vibes', 'cursive'],
+      ornament: ['Playfair Display', 'serif'],
+    },
+    sizes: {
+      xs: 'clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem)',
+      sm: 'clamp(0.875rem, 0.8rem + 0.35vw, 1rem)',
+      base: 'clamp(1rem, 0.95rem + 0.25vw, 1.125rem)',
+      lg: 'clamp(1.125rem, 1rem + 0.5vw, 1.25rem)',
+      xl: 'clamp(1.25rem, 1.1rem + 0.75vw, 1.5rem)',
+      '2xl': 'clamp(1.5rem, 1.25rem + 1.25vw, 2rem)',
+      '3xl': 'clamp(2rem, 1.5rem + 2.5vw, 3rem)',
+      '4xl': 'clamp(2.5rem, 2rem + 2.5vw, 4rem)',
+      '5xl': 'clamp(3rem, 2.5rem + 2.5vw, 5rem)',
+    },
+  },
+  spacing: {
+    '3xs': '0.125rem',
+    '2xs': '0.25rem',
+    xs: '0.5rem',
+    sm: '0.75rem',
+    md: '1rem',
+    lg: '1.5rem',
+    xl: '2rem',
+    '2xl': '3rem',
+    '3xl': '4rem',
+    '4xl': '6rem',
+    '5xl': '8rem',
+    '6xl': '12rem',
+  },
+  borderRadius: {
+    sm: '0.125rem',
+    md: '0.25rem',
+    lg: '0.5rem',
+    xl: '1rem',
+    '2xl': '2rem',
+    '3xl': '4rem',
+    full: '9999px',
+  },
+  shadows: {
+    sm: '0 1px 2px rgba(42, 45, 38, 0.05)',
+    md: '0 4px 12px rgba(42, 45, 38, 0.08)',
+    lg: '0 8px 24px rgba(42, 45, 38, 0.1)',
+    xl: '0 16px 48px rgba(42, 45, 38, 0.12)',
+    gold: '0 0 40px rgba(201, 167, 105, 0.2)',
+  },
+  transitions: {
+    micro: '150ms ease',
+    fast: '300ms ease',
+    base: '500ms ease',
+    slow: '800ms ease',
+    bounce: '600ms cubic-bezier(0.34, 1.56, 0.64, 1)',
+  },
+  zIndex: {
+    base: 1,
+    elevated: 10,
+    sticky: 100,
+    overlay: 1000,
+    modal: 2000,
+    toast: 3000,
+  },
+} as const;
+
+export type Theme = typeof theme;
+```
+
+#### 5.4.2 Tailwind Configuration
+```typescript
+// tailwind.config.ts
+import type { Config } from 'tailwindcss';
+import { theme } from './src/styles/theme';
+
+const config: Config = {
+  darkMode: ['class'],
+  content: [
+    './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/components/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/app/**/*.{js,ts,jsx,tsx,mdx}',
+  ],
+  theme: {
+    extend: {
+      colors: theme.colors,
+      fontFamily: {
+        display: theme.typography.fonts.display,
+        body: theme.typography.fonts.body,
+        accent: theme.typography.fonts.accent,
+        ornament: theme.typography.fonts.ornament,
+      },
+      fontSize: theme.typography.sizes,
+      spacing: theme.spacing,
+      borderRadius: theme.borderRadius,
+      boxShadow: theme.shadows,
+      transitionDuration: {
+        micro: '150ms',
+        fast: '300ms',
+        base: '500ms',
+        slow: '800ms',
+      },
+      zIndex: theme.zIndex,
+      keyframes: {
+        'fade-in': {
+          from: { opacity: '0' },
+          to: { opacity: '1' },
+        },
+        'fade-out': {
+          from: { opacity: '1' },
+          to: { opacity: '0' },
+        },
+        'slide-in-right': {
+          from: { transform: 'translateX(100%)' },
+          to: { transform: 'translateX(0)' },
+        },
+        'slide-out-right': {
+          from: { transform: 'translateX(0)' },
+          to: { transform: 'translateX(100%)' },
+        },
+        'slide-in-up': {
+          from: { transform: 'translateY(100%)', opacity: '0' },
+          to: { transform: 'translateY(0)', opacity: '1' },
+        },
+        'scale-in': {
+          from: { transform: 'scale(0.95)', opacity: '0' },
+          to: { transform: 'scale(1)', opacity: '1' },
+        },
+        'rotate-seal': {
+          from: { transform: 'rotate(0deg)' },
+          to: { transform: 'rotate(360deg)' },
+        },
+        'float-botanical': {
+          '0%, 100%': { transform: 'translateY(0) rotate(0deg)' },
+          '50%': { transform: 'translateY(-20px) rotate(5deg)' },
+        },
+        'liquid-wave': {
+          '0%, 100%': { transform: 'translateY(0) scaleY(1)' },
+          '50%': { transform: 'translateY(-10px) scaleY(1.05)' },
+        },
+      },
+      animation: {
+        'fade-in': 'fade-in 0.3s ease-out',
+        'fade-out': 'fade-out 0.3s ease-out',
+        'slide-in-right': 'slide-in-right 0.5s ease-out',
+        'slide-out-right': 'slide-out-right 0.5s ease-out',
+        'slide-in-up': 'slide-in-up 0.5s ease-out',
+        'scale-in': 'scale-in 0.3s ease-out',
+        'rotate-seal': 'rotate-seal 30s linear infinite',
+        'float-botanical': 'float-botanical 6s ease-in-out infinite',
+        'liquid-wave': 'liquid-wave 8s ease-in-out infinite',
+      },
+    },
+  },
+  plugins: [
+    require('tailwindcss-animate'),
+    require('@tailwindcss/typography'),
+    require('@tailwindcss/forms'),
+  ],
+};
+
+export default config;
+```
+
+### 5.5 Routing Structure
+```typescript
+// config/navigation.ts
+export const navigation = {
+  main: [
+    {
+      id: 'compendium',
+      label: 'Compendium',
+      href: '/compendium',
+      number: 'I',
+    },
+    {
+      id: 'alchemy',
+      label: 'Alchemy',
+      href: '/alchemy',
+      number: 'II',
+    },
+    {
+      id: 'atelier',
+      label: 'The Atelier',
+      href: '/atelier',
+      number: 'III',
+    },
+    {
+      id: 'manuscript',
+      label: 'Manuscript',
+      href: '/manuscript',
+      number: 'IV',
+    },
+  ],
+  account: [
+    { label: 'Orders', href: '/account/orders' },
+    { label: 'Addresses', href: '/account/addresses' },
+    { label: 'Subscription', href: '/account/subscription' },
+    { label: 'Settings', href: '/account/settings' },
+  ],
+  footer: {
+    folios: [
+      { label: 'Compendium', href: '/compendium' },
+      { label: 'Alchemy', href: '/alchemy' },
+      { label: 'The Atelier', href: '/atelier' },
+      { label: 'Manuscript', href: '/manuscript' },
+    ],
+    legal: [
+      { label: 'Manuscript Rights', href: '/legal/privacy' },
+      { label: 'Correspondence Terms', href: '/legal/terms' },
+      { label: 'Atelier Visits', href: '/appointments' },
+    ],
+  },
+} as const;
+
+export type Navigation = typeof navigation;
+```
+
+---
+
+## Backend Architecture
+
+### 6.1 Service Layer Architecture
+```mermaid
+flowchart TB
+    subgraph ServiceLayer["Service Layer Architecture"]
+        direction TB
+        
+        subgraph APILayer["API LAYER"]
+            NextJSAPI[Next.js API Routes + Server Actions]
+            NextJSAPI --> APIRoutes
+            NextJSAPI --> ServerActions
+            NextJSAPI --> RouteHandlers
+            NextJSAPI --> RSCFetches
+            NextJSAPI --> MiddlewareAuth
+        end
+        
+        subgraph ServiceLayer["SERVICE LAYER"]
+            direction TB
+            BusinessLogic[Business Logic + Validation + External Service Integration]
+            
+            subgraph CoreServices["Core Services"]
+                ProductService[ProductService]
+                OrderService[OrderService]
+                UserService[UserService]
+            end
+            
+            subgraph AdditionalServices["Additional Services"]
+                CartService[CartService]
+                SubscriptionService[SubscriptionService]
+                EmailService[EmailService]
+                InventoryService[InventoryService]
+                PaymentService[PaymentService]
+                ContentService[ContentService]
+            end
+        end
+        
+        subgraph RepositoryLayer["REPOSITORY LAYER"]
+            PrismaORM[Prisma ORM + Data Access Patterns]
+            PrismaORM --> PrismaClient[Prisma Client]
+            PrismaClient --> TypeSafeQueries
+            PrismaClient --> Transactions
+            PrismaClient --> Migrations
+        end
+        
+        APILayer --> ServiceLayer
+        ServiceLayer --> RepositoryLayer
+    end
+```
+
+### 6.2 Service Implementation Examples
+
+#### 6.2.1 Product Service
+```typescript
+// services/product.service.ts
+import { prisma } from '@/lib/prisma';
+import { redis } from '@/lib/redis';
+import { sanity } from '@/lib/sanity';
+import type {
+  Essence,
+  EssenceFilter,
+  EssenceSort,
+  PaginatedResponse
+} from '@/types';
+
+const CACHE_TTL = 60 * 60; // 1 hour
+const CACHE_PREFIX = 'products:';
+
+export class ProductService {
+  /**
+   * Get all essences with optional filtering, sorting, and pagination
+   */
+  static async getAll(options: {
+    filter?: EssenceFilter;
+    sort?: EssenceSort;
+    page?: number;
+    limit?: number;
+  }): Promise<PaginatedResponse<Essence[]>> {
+    const {
+      filter = {},
+      sort = { field: 'createdAt', order: 'desc' },
+      page = 1,
+      limit = 12
+    } = options;
+
+    const cacheKey = `${CACHE_PREFIX}list:${JSON.stringify({ filter, sort, page, limit })}`;
+    
+    // Check cache first
+    const cached = await redis.get<PaginatedResponse<Essence[]>>(cacheKey);
+    if (cached) return cached;
+
+    // Build where clause
+    const where: Prisma.EssenceWhereInput = {
+      isActive: true,
+      ...(filter.humour && { humour: filter.humour }),
+      ...(filter.rarity && { rarity: filter.rarity }),
+      ...(filter.season && { season: filter.season }),
+      ...(filter.minPrice && { price: { gte: filter.minPrice } }),
+      ...(filter.maxPrice && { price: { lte: filter.maxPrice } }),
+      ...(filter.inStock && { stockQuantity: { gt: 0 } }),
+    };
+
+    // Build order by
+    const orderBy: Prisma.EssenceOrderByWithRelationInput = {
+      [sort.field]: sort.order,
+    };
+
+    // Execute query with count
+    const [essences, total] = await prisma.$transaction([
+      prisma.essence.findMany({
+        where,
+        orderBy,
+        skip: (page - 1) * limit,
+        take: limit,
+        include: {
+          category: true,
+          botanicalInfo: true,
+          images: true,
+        },
+      }),
+      prisma.essence.count({ where }),
+    ]);
+
+    const result: PaginatedResponse<Essence[]> = {
+      items: essences,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+        hasMore: page * limit < total,
+      },
+    };
+
+    // Cache result
+    await redis.set(cacheKey, result, { ex: CACHE_TTL });
+
+    return result;
+  }
+
+  /**
+   * Get a single essence by slug
+   */
+  static async getBySlug(slug: string): Promise<Essence | null> {
+    const cacheKey = `${CACHE_PREFIX}slug:${slug}`;
+    // Check cache
+    const cached = await redis.get<Essence>(cacheKey);
+    if (cached) return cached;
+
+    const essence = await prisma.essence.findUnique({
+      where: { slug, isActive: true },
+      include: {
+        category: true,
+        botanicalInfo: true,
+        images: true,
+        relatedEssences: {
+          take: 4,
+          where: { isActive: true },
+        },
+      },
+    });
+
+    if (essence) {
+      await redis.set(cacheKey, essence, { ex: CACHE_TTL });
+    }
+
+    return essence;
+  }
+
+  /**
+   * Search essences by query
+   */
+  static async search(query: string, limit = 10): Promise<Essence[]> {
+    const essences = await prisma.essence.findMany({
+      where: {
+        isActive: true,
+        OR: [
+          { name: { contains: query, mode: 'insensitive' } },
+          { latinName: { contains: query, mode: 'insensitive' } },
+          { description: { contains: query, mode: 'insensitive' } },
+          { botanicalInfo: { notes: { hasSome: [query] } } },
+        ],
+      },
+      take: limit,
+      include: {
+        category: true,
+      },
+    });
+    return essences;
+  }
+
+  /**
+   * Invalidate product cache
+   */
+  static async invalidateCache(slug?: string): Promise<void> {
+    if (slug) {
+      await redis.del(`${CACHE_PREFIX}slug:${slug}`);
+    }
+    // Invalidate list caches (pattern delete)
+    const keys = await redis.keys(`${CACHE_PREFIX}list:*`);
+    if (keys.length > 0) {
+      await redis.del(...keys);
+    }
+  }
+}
+```
+
+#### 6.2.2 Order Service
+```typescript
+// services/order.service.ts
+import { prisma } from '@/lib/prisma';
+import { stripe } from '@/lib/stripe';
+import { EmailService } from './email.service';
+import { InventoryService } from './inventory.service';
+import type {
+  Order,
+  OrderCreateInput,
+  OrderStatus,
+  PaymentIntent
+} from '@/types';
+
+export class OrderService {
+  /**
+   * Create a new order from checkout
+   */
+  static async create(input: OrderCreateInput): Promise<{
+    order: Order;
+    paymentIntentClientSecret: string;
+  }> {
+    // Validate cart items and inventory
+    for (const item of input.items) {
+      const available = await InventoryService.checkStock(
+        item.essenceId,
+        item.quantity
+      );
+      if (!available) {
+        throw new Error(`Insufficient stock for ${item.essenceName}`);
+      }
+    }
+
+    // Create order in transaction
+    const order = await prisma.$transaction(async (tx) => {
+      // 1. Create the order
+      const newOrder = await tx.order.create({
+        data: {
+          orderNumber: this.generateOrderNumber(),
+          userId: input.userId,
+          status: 'PENDING_PAYMENT',
+          subtotal: input.subtotal,
+          shippingCost: input.shippingCost,
+          taxAmount: input.taxAmount,
+          total: input.total,
+          currency: 'EUR',
+          shippingAddress: {
+            create: input.shippingAddress,
+          },
+          billingAddress: input.billingAddress 
+            ? { create: input.billingAddress }
+            : undefined,
+          items: {
+            create: input.items.map((item) => ({
+              essenceId: item.essenceId,
+              quantity: item.quantity,
+              unitPrice: item.unitPrice,
+              totalPrice: item.unitPrice * item.quantity,
+            })),
+          },
+        },
+        include: {
+          items: { include: { essence: true } },
+          shippingAddress: true,
+          billingAddress: true,
+          user: true,
+        },
+      });
+      
+      // 2. Reserve inventory
+      for (const item of input.items) {
+        await InventoryService.reserve(item.essenceId, item.quantity, tx);
+      }
+      
+      return newOrder;
+    });
+
+    // 3. Create Stripe payment intent
+    const paymentIntent = await this.createPaymentIntent(order);
+
+    // 4. Update order with payment intent ID
+    await prisma.order.update({
+      where: { id: order.id },
+      data: { stripePaymentIntentId: paymentIntent.id },
+    });
+
+    return { ...order, paymentIntentClientSecret: paymentIntent.client_secret };
+  }
+
+  /**
+   * Handle successful payment webhook
+   */
+  static async handlePaymentSuccess(
+    paymentIntentId: string
+  ): Promise<Order> {
+    const order = await prisma.order.findFirst({
+      where: { stripePaymentIntentId: paymentIntentId },
+      include: {
+        items: { include: { essence: true } },
+        user: true,
+        shippingAddress: true,
+      },
+    });
+    if (!order) {
+      throw new Error(`Order not found for payment intent: ${paymentIntentId}`);
+    }
+
+    // Update order status
+    const updatedOrder = await prisma.$transaction(async (tx) => {
+      // 1. Update order status
+      const updated = await tx.order.update({
+        where: { id: order.id },
+        data: { 
+          status: 'CONFIRMED',
+          paidAt: new Date(),
+        },
+        include: {
+          items: { include: { essence: true } },
+          user: true,
+          shippingAddress: true,
+        },
+      });
+      
+      // 2. Deduct inventory (convert from reserved to sold)
+      for (const item of order.items) {
+        await InventoryService.deduct(item.essenceId, item.quantity, tx);
+      }
+      
+      return updated;
+    });
+
+    // 3. Send confirmation email
+    await EmailService.sendOrderConfirmation(updatedOrder);
+
+    return updatedOrder;
+  }
+
+  /**
+   * Get order by ID for a user
+   */
+  static async getById(
+    orderId: string,
+    userId: string
+  ): Promise<Order | null> {
+    return prisma.order.findFirst({
+      where: { id: orderId, userId },
+      include: {
+        items: { include: { essence: true } },
+        shippingAddress: true,
+        billingAddress: true,
+        shipments: true,
+      },
+    });
+  }
+
+  /**
+   * Get user's order history
+   */
+  static async getByUserId(
+    userId: string,
+    options: { page?: number; limit?: number } = {}
+  ): Promise<{ orders: Order[]; total: number }> {
+    const { page = 1, limit = 10 } = options;
+    const [orders, total] = await prisma.$transaction([
+      prisma.order.findMany({
+        where: { userId },
+        orderBy: { createdAt: 'desc' },
+        skip: (page - 1) * limit,
+        take: limit,
+        include: {
+          items: { include: { essence: true } },
+        },
+      }),
+      prisma.order.count({ where: { userId } }),
+    ]);
+
+    return { orders, total };
+  }
+
+  /**
+   * Update order status
+   */
+  static async updateStatus(
+    orderId: string,
+    status: OrderStatus,
+    metadata?: Record<string, any>
+  ): Promise<Order> {
+    const order = await prisma.order.update({
+      where: { id: orderId },
+      data: {
+        status,
+        ...(status === 'SHIPPED' && { shippedAt: new Date() }),
+        ...(status === 'DELIVERED' && { deliveredAt: new Date() }),
+        ...(metadata && { metadata }),
+      },
+      include: {
+        items: { include: { essence: true } },
+        user: true,
+        shippingAddress: true,
+      },
+    });
+    // Send status update email
+    await EmailService.sendOrderStatusUpdate(order);
+
+    return order;
+  }
+
+  /**
+   * Create Stripe payment intent
+   */
+  private static async createPaymentIntent(
+    order: Order
+  ): Promise<PaymentIntent> {
+    return stripe.paymentIntents.create({
+      amount: Math.round(order.total * 100), // Convert to cents
+      currency: 'eur',
+      metadata: {
+        orderId: order.id,
+        orderNumber: order.orderNumber,
+      },
+      automatic_payment_methods: {
+        enabled: true,
+      },
+    });
+  }
+
+  /**
+   * Generate unique order number
+   */
+  private static generateOrderNumber(): string {
+    const timestamp = Date.now().toString(36).toUpperCase();
+    const random = Math.random().toString(36).substring(2, 6).toUpperCase();
+    return `AA-${timestamp}-${random}`;
+  }
+}
+```
+
+### 6.3 Authentication Configuration
+```typescript
+// lib/auth.ts
+import NextAuth from 'next-auth';
+import { PrismaAdapter } from '@auth/prisma-adapter';
+import CredentialsProvider from 'next-auth/providers/credentials';
+import GoogleProvider from 'next-auth/providers/google';
+import { prisma } from '@/lib/prisma';
+import { compare } from 'bcryptjs';
+import { z } from 'zod';
+
+const loginSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(8),
+});
+
+export const {
+  handlers: { GET, POST },
+  auth,
+  signIn,
+  signOut,
+} = NextAuth({
+  adapter: PrismaAdapter(prisma),
+  session: {
+    strategy: 'jwt',
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+  },
+  pages: {
+    signIn: '/login',
+    signOut: '/logout',
+    error: '/login',
+    newUser: '/welcome',
+  },
+  providers: [
+    CredentialsProvider({
+      name: 'credentials',
+      credentials: {
+        email: { label: 'Email', type: 'email' },
+        password: { label: 'Password', type: 'password' },
+      },
+      async authorize(credentials) {
+        const parsed = loginSchema.safeParse(credentials);
+        if (!parsed.success) {
+          return null;
+        }
+        
+        const user = await prisma.user.findUnique({
+          where: { email: parsed.data.email },
+          select: {
+            id: true,
+            email: true,
+            name: true,
+            password: true,
+            image: true,
+            role: true,
+            emailVerified: true,
+          },
+        });
+        
+        if (!user || !user.password) {
+          return null;
+        }
+        
+        const isValid = await compare(parsed.data.password, user.password);
+        
+        if (!isValid) {
+          return null;
+        }
+        
+        return {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          image: user.image,
+          role: user.role,
+        };
+      },
+    }),
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    }),
+  ],
+  callbacks: {
+    async jwt({ token, user, trigger, session }) {
+      if (user) {
+        token.id = user.id;
+        token.role = user.role;
+      }
+      if (trigger === 'update' && session) {
+        token.name = session.name;
+        token.email = session.email;
+      }
+      
+      return token;
+    },
+    async session({ session, token }) {
+      if (token) {
+        session.user.id = token.id as string;
+        session.user.role = token.role as string;
+      }
+      
+      return session;
+    },
+  },
+  events: {
+    async createUser({ user }) {
+      // Send welcome email
+      if (user.email) {
+        const { EmailService } = await import('@/services/email.service');
+        await EmailService.sendWelcomeEmail({
+          email: user.email,
+          name: user.name || 'Patron',
+        });
+      }
+    },
+  },
+});
+
+// Type augmentation for NextAuth
+declare module 'next-auth' {
+  interface Session {
+    user: {
+      id: string;
+      role: string;
+      email: string;
+      name: string;
+      image?: string;
+    };
+  }
+  interface User {
+    role: string;
+  }
+}
+declare module 'next-auth/jwt' {
+  interface JWT {
+    id: string;
+    role: string;
+  }
+}
+```
+
